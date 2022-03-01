@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 
 public class ProductMocker extends Product {
   public static Product createProduct(BigDecimal price) {
-    Product product = Mockito.mock(Product.class);
+    Product product = new Product();
     UUID productId = UUID.randomUUID();
     product.setId(productId);
     product.setPrice(price);

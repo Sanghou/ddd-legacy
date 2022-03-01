@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import kitchenpos.Mocker.MenuMocker;
 import kitchenpos.Mocker.MenuProductMocker;
 import kitchenpos.Mocker.ProductMocker;
 import kitchenpos.domain.Menu;
+import kitchenpos.domain.MenuGroup;
 import kitchenpos.domain.MenuGroupRepository;
 import kitchenpos.domain.MenuProduct;
 import kitchenpos.domain.MenuRepository;
@@ -55,12 +57,9 @@ class MenuServiceTest {
   void changePrice_nonNegativePrice_isTrue() {
     Product product = ProductMocker.createProduct(BigDecimal.valueOf(10));
     MenuProduct menuProduct = MenuProductMocker.createMenu(product, 10);
-
     List<MenuProduct> menuProducts = new ArrayList<>();
     menuProducts.add(menuProduct);
-
-    Menu menu = MenuMocker.createMenu(BigDecimal.valueOf(1000), menuProducts);
-
+    Menu menu = MenuMocker.createMenu(BigDecimal.valueOf(100), menuProducts);
     given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
 
     assertDoesNotThrow(() -> menuService.changePrice(menu.getId(), menu));
@@ -68,6 +67,25 @@ class MenuServiceTest {
 
   @Test
   void hidePrice_registeredMenu_isTrue() {
+    Menu menu = MenuMocker.createMenuWithDefault();
+    given(menuRepository.findById(menu.getId())).willReturn(Optional.empty());
 
+    assertThrows(NoSuchElementException.class, () -> menuService.hide(menu.getId()));
+  }
+
+  @Test
+  void findAll_search_AllMenu() {
+    MenuGroup menuGroup = new MenuGroup();
+    Menu m1 = MenuMocker.createMenuWithDefault();
+    Menu m2 = MenuMocker.createMenuWithDefault();
+    System.out.println(m1);
+    System.out.println(m2);
+    given(menuGroupRepository.findById(m1.getMenuGroupId())).willReturn(Optional.of(menuGroup));
+    given(menuGroupRepository.findById(m1.getMenuGroupId())).willReturn(Optional.of(menuGroup));
+    menuService.create(m1);
+    menuService.create(m2);
+
+    List<Menu> menus = menuService.findAll();
+    assertEquals(menus.size(), 2);
   }
 }

@@ -7,7 +7,7 @@ import org.mockito.Mockito;
 
 public class MenuProductMocker extends MenuProduct {
   public static MenuProduct createMenu(Product product, Integer quantity) {
-    MenuProduct menuProduct = Mockito.mock(MenuProduct.class);
+    MenuProduct menuProduct = new MenuProduct();
     menuProduct.setProductId(product.getId());
     menuProduct.setProduct(product);
     menuProduct.setQuantity(quantity);

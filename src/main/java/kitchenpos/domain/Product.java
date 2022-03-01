@@ -22,7 +22,6 @@ public class Product {
 
     public Product() {
     }
-
     public UUID getId() {
         return id;
     }
@@ -44,6 +43,9 @@ public class Product {
     }
 
     public void setPrice(final BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("상품 가격이 잘못됐어요!");
+        }
         this.price = price;
     }
 }

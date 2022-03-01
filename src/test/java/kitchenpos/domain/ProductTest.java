@@ -1,13 +1,13 @@
 package kitchenpos.domain;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -15,23 +15,23 @@ import org.mockito.quality.Strictness;
 @MockitoSettings(strictness = Strictness.LENIENT)
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
-class MenuTest {
+public class ProductTest {
+
   @Test
   void setPrice_nullPrice_isError() {
-    Menu menu = new Menu();
-    assertThrows(IllegalArgumentException.class, () -> menu.setPrice(null));
+    Product product = new Product();
+    assertThrows(IllegalArgumentException.class, () -> product.setPrice(null));
   }
 
   @Test
   void setPrice_toNegativeValue_isError() {
-    Menu menu = new Menu();
-    assertThrows(IllegalArgumentException.class, () -> menu.setPrice(BigDecimal.valueOf(-1)));
+    Product product = new Product();
+    assertThrows(IllegalArgumentException.class, () -> product.setPrice(null));
   }
 
   @Test
   void setPrice_nonNegativePrice_isTrue() {
-    Menu menu = Mockito.mock(Menu.class);
-    assertDoesNotThrow(() -> menu.setPrice(BigDecimal.valueOf(10)));
+    Product product = new Product();
+    assertDoesNotThrow(() -> product.setPrice(BigDecimal.valueOf(10)));
   }
 }
-

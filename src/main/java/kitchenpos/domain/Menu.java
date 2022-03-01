@@ -71,7 +71,6 @@ public class Menu {
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("음식 가격이 잘못됐어요!");
         }
-        System.out.println(price);
         this.price = price;
     }
 

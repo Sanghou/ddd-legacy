@@ -104,8 +104,6 @@ public class MenuService {
 //        if(price.compareTo(sum) > 0) {
 //            throw new IllegalArgumentException();
 //        }
-        System.out.println(menu);
-        System.out.println(request);
         menu.setPrice(price);
         return menu;
     }
