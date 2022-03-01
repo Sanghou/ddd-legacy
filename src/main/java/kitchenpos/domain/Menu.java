@@ -1,5 +1,7 @@
 package kitchenpos.domain;
 
+import javax.validation.constraints.Min;
+import kitchenpos.infra.PurgomalumClient;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,6 +17,7 @@ public class Menu {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Min(0)
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
@@ -65,6 +68,10 @@ public class Menu {
     }
 
     public void setPrice(final BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("음식 가격이 잘못됐어요!");
+        }
+        System.out.println(price);
         this.price = price;
     }
 
