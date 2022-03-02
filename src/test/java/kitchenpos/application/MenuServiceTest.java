@@ -1,5 +1,6 @@
 package kitchenpos.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
@@ -74,18 +75,27 @@ class MenuServiceTest {
   }
 
   @Test
+  // todo : 하위 테스트들 추가 및 테스트하고 확인하자. 작업이 많다!
   void findAll_search_AllMenu() {
     MenuGroup menuGroup = new MenuGroup();
     Menu m1 = MenuMocker.createMenuWithDefault();
     Menu m2 = MenuMocker.createMenuWithDefault();
-    System.out.println(m1);
-    System.out.println(m2);
     given(menuGroupRepository.findById(m1.getMenuGroupId())).willReturn(Optional.of(menuGroup));
-    given(menuGroupRepository.findById(m1.getMenuGroupId())).willReturn(Optional.of(menuGroup));
+    given(menuGroupRepository.findById(m2.getMenuGroupId())).willReturn(Optional.of(menuGroup));
     menuService.create(m1);
     menuService.create(m2);
 
     List<Menu> menus = menuService.findAll();
     assertEquals(menus.size(), 2);
+  }
+
+  @Test
+  void showMenu_expensivePrice_isFalse() {
+    Menu menu = MenuMocker.createMenuWithDefault();
+    menu.setPrice(BigDecimal.valueOf(10000));
+    given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
+
+    assertThrows(IllegalStateException.class, () -> menuService.display(menu.getId()));
+    assertThat(menu.isDisplayed()).isFalse();
   }
 }
