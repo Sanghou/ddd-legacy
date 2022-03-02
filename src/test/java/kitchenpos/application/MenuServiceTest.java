@@ -90,6 +90,16 @@ class MenuServiceTest {
   }
 
   @Test
+  void showMenu_inexpensivePrice_isTalse() {
+    Menu menu = MenuMocker.createMenuWithDefault();
+    menu.setPrice(BigDecimal.valueOf(100));
+    given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
+
+    assertDoesNotThrow(() -> menuService.display(menu.getId()));
+    assertThat(menu.isDisplayed()).isTrue();
+  }
+
+  @Test
   void showMenu_expensivePrice_isFalse() {
     Menu menu = MenuMocker.createMenuWithDefault();
     menu.setPrice(BigDecimal.valueOf(10000));
