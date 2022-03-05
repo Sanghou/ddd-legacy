@@ -41,13 +41,6 @@ public class ProductServiceTest {
     productService = new ProductService(productRepository, menuRepository, purgomalumClient);
   }
 
-  /*
-   TODO : 해당 테스트 확인 필요
-   Help. 도메인 로직같은데 도메인 로직에 어떻게 넣을지 잘 모르는 상태.
-   purgomalumClient를 singleton으로 두고 domain에 inject해서 확인한다?
-   => 도메인
-   */
-
   @Test
   void createProduct_validName_isTrue() {
     Product product = ProductMocker.createProduct(BigDecimal.valueOf(10));
