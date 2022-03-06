@@ -8,7 +8,6 @@ import kitchenpos.domain.Menu;
 import kitchenpos.domain.MenuGroup;
 import kitchenpos.domain.MenuProduct;
 import kitchenpos.domain.Product;
-import org.mockito.Mockito;
 import org.springframework.lang.Nullable;
 
 public class MenuMocker extends Menu {

@@ -147,6 +147,8 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.DELIVERING) {
             throw new IllegalStateException();
         }
+//        validateOrderType(order, OrderType.DELIVERY);
+//        validateOrderStatus(order, OrderStatus.DELIVERING);
         order.setStatus(OrderStatus.DELIVERED);
         return order;
     }
@@ -181,5 +183,17 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<Order> findAll() {
         return orderRepository.findAll();
+    }
+
+    private void validateOrderType(Order order, OrderType type) {
+        if (order.getType() != type) {
+            throw new IllegalStateException();
+        }
+    }
+
+    private void validateOrderStatus(Order order, OrderStatus status) {
+        if (order.getStatus() != status) {
+            throw new IllegalStateException();
+        }
     }
 }

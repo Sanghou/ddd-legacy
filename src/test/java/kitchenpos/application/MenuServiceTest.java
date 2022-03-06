@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import kitchenpos.Mocker.MenuGroupMocker;
 import kitchenpos.Mocker.MenuMocker;
 import kitchenpos.Mocker.MenuProductMocker;
 import kitchenpos.Mocker.ProductMocker;
@@ -19,6 +22,7 @@ import kitchenpos.domain.MenuRepository;
 import kitchenpos.domain.Product;
 import kitchenpos.domain.ProductRepository;
 import kitchenpos.infra.PurgomalumClient;
+import org.graalvm.compiler.nodes.calc.IntegerDivRemNode.Op;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,9 +60,27 @@ class MenuServiceTest {
   }
 
   @Test
+  @DisplayName("메뉴 상품은 모두 상품에 등록되어있어야 한다.")
+  void createMenu_notEnrollProduct_isFalse() {
+    Product product = ProductMocker.createProduct(BigDecimal.valueOf(10));
+    MenuProduct menuProduct = MenuProductMocker.createMenu(product, 10);
+    List<MenuProduct> menuProducts = new ArrayList<>();
+    menuProducts.add(menuProduct);
+    MenuGroup menuGroup = MenuGroupMocker.createMenuGroup();
+    Menu menu = MenuMocker.createMenu(BigDecimal.valueOf(100), menuProducts, menuGroup);
+    given(productRepository.findById(product.getId())).willReturn(Optional.empty());
+
+    assertThrows(NoSuchElementException.class, () -> menuService.create(menu));
+  }
+
+  @Test
   @DisplayName("메뉴 이름은 null이 아니고 비속어가 아니어야 한다.")
   void createMenu_menuNameIsNotNull() {
+    Menu menu = MenuMocker.createMenuWithDefault();
+    menu.setName(null);
+    given(menuGroupRepository.findById(menu.getMenuGroupId())).willReturn(Optional.of(menu.getMenuGroup()));
 
+    assertThrows(IllegalArgumentException.class, () -> menuService.create(menu));
   }
 
   @Test
@@ -76,15 +98,12 @@ class MenuServiceTest {
   @Test
   @DisplayName("메뉴의 가격을 변경할 수 있다.")
   void changePrice_nonNegativePrice_isTrue() {
-//    Product product = ProductMocker.createProduct(BigDecimal.valueOf(10));
-//    MenuProduct menuProduct = MenuProductMocker.createMenu(product, 10);
-//    List<MenuProduct> menuProducts = new ArrayList<>();
-//    menuProducts.add(menuProduct);
-//    Menu menu = MenuMocker.createMenu(BigDecimal.valueOf(100), menuProducts, );
     Menu menu = MenuMocker.createMenuWithDefault();
+    Menu changedMenu = MenuMocker.of(menu);
+    changedMenu.setPrice(BigDecimal.valueOf(10));
     given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
 
-    assertDoesNotThrow(() -> menuService.changePrice(menu.getId(), menu));
+    assertDoesNotThrow(() -> menuService.changePrice(menu.getId(), changedMenu));
   }
 
   @Test
