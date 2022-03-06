@@ -105,4 +105,17 @@ public class Menu {
     public void setMenuGroupId(final UUID menuGroupId) {
         this.menuGroupId = menuGroupId;
     }
+
+    private BigDecimal calculatePrice() {
+        return menuProducts
+            .stream()
+            .map(MenuProduct::price)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void updateDisplay() {
+        if (price.compareTo(calculatePrice()) > 0) {
+            this.displayed = false;
+        }
+    }
 }

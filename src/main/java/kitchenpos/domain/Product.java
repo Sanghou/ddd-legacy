@@ -22,30 +22,45 @@ public class Product {
 
     public Product() {
     }
+
+    public Product(UUID id, String name, BigDecimal price) {
+        verify(name, price);
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(final UUID id) {
-        this.id = id;
+    private void verify(String name, BigDecimal price) {
+        verifyName(name);
+        verifyPrice(price);
+    }
+
+    private void verifyName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("이름은 null일 수 없습니다.");
+        }
+    }
+
+    private void verifyPrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("상품 가격이 잘못됐어요!");
+        }
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
-
     public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(final BigDecimal price) {
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("상품 가격이 잘못됐어요!");
-        }
+    public void updatePrice(BigDecimal price) {
+        verifyPrice(price);
         this.price = price;
     }
 }

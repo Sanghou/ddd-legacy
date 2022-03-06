@@ -1,14 +1,13 @@
 package kitchenpos.application;
 
+import java.math.BigDecimal;
 import kitchenpos.domain.*;
 import kitchenpos.infra.PurgomalumClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -28,37 +27,22 @@ public class ProductService {
     }
 
     @Transactional
-    public Product create(final Product request) {
-        final BigDecimal price = request.getPrice();
-        final String name = request.getName();
-        if (Objects.isNull(name) || purgomalumClient.containsProfanity(name)) {
-            throw new IllegalArgumentException();
+    public Product create(final Product product) {
+        if (purgomalumClient.containsProfanity(product.getName())) {
+            throw new IllegalArgumentException("비속어 금지");
         }
-        final Product product = new Product();
-        product.setId(UUID.randomUUID());
-        product.setName(name);
-        product.setPrice(price);
         return productRepository.save(product);
     }
 
     @Transactional
-    public Product changePrice(final UUID productId, final Product request) {
-        final BigDecimal price = request.getPrice();
+    public Product changePrice(final UUID productId, final BigDecimal price) {
         final Product product = productRepository.findById(productId)
             .orElseThrow(NoSuchElementException::new);
-        product.setPrice(price);
         final List<Menu> menus = menuRepository.findAllByProductId(productId);
-        for (final Menu menu : menus) {
-            BigDecimal sum = BigDecimal.ZERO;
-            for (final MenuProduct menuProduct : menu.getMenuProducts()) {
-                sum = menuProduct.getProduct()
-                    .getPrice()
-                    .multiply(BigDecimal.valueOf(menuProduct.getQuantity()));
-            }
-            if (menu.getPrice().compareTo(sum) > 0) {
-                menu.setDisplayed(false);
-            }
-        }
+
+        product.updatePrice(price);
+        menus.forEach(Menu::updateDisplay);
+
         return product;
     }
 

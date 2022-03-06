@@ -138,7 +138,6 @@ class MenuServiceTest {
 
     assertThat(hiddenMenu.isDisplayed()).isFalse();
   }
-
   @Test
   @DisplayName("등록된 메뉴만 숨길 수 있다.")
   void hidePrice_unregisteredMenu_isError() {

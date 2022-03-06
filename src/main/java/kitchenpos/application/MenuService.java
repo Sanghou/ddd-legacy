@@ -117,6 +117,7 @@ public class MenuService {
                     .multiply(
                         BigDecimal.valueOf(menuProduct.getQuantity())
                     ))
+            // 저 안을 menuProduct의 책임으로 보내면 더 좋은 코드가 됐겠다.
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

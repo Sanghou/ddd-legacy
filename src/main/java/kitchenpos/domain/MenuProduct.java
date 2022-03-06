@@ -1,5 +1,6 @@
 package kitchenpos.domain;
 
+import java.math.BigDecimal;
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -61,5 +62,9 @@ public class MenuProduct {
 
     public void setProductId(final UUID productId) {
         this.productId = productId;
+    }
+
+    public BigDecimal price() {
+        return product.getPrice().multiply(BigDecimal.valueOf(getQuantity()));
     }
 }

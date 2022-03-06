@@ -1,37 +1,50 @@
 package kitchenpos.domain;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.math.BigDecimal;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import kitchenpos.fixture.ProductFixture;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowableAssert;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-@MockitoSettings(strictness = Strictness.LENIENT)
-@TestInstance(Lifecycle.PER_CLASS)
-@ExtendWith(MockitoExtension.class)
 public class ProductTest {
 
-  @Test
-  void setPrice_nullPrice_isError() {
-    Product product = new Product();
-    assertThrows(IllegalArgumentException.class, () -> product.setPrice(null));
+  @ParameterizedTest
+  @NullSource
+  @DisplayName("가격은 null로 설정할 수 없다.")
+  void setPrice_nullPrice_isError(BigDecimal value) {
+    Product product = ProductFixture.상품_생성();
+
+    ThrowableAssert.ThrowingCallable callable = () -> product.updatePrice(value);
+
+    Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(callable)
+        .withMessageMatching("상품 가격이 잘못됐어요!");
   }
 
-  @Test
-  void setPrice_toNegativeValue_isError() {
-    Product product = new Product();
-    assertThrows(IllegalArgumentException.class, () -> product.setPrice(null));
+  @ParameterizedTest
+  @ValueSource(ints = {-1, -2, -3, -100, -10000})
+  @DisplayName("가격은 음수로 설정할 수 없다.")
+  void setPrice_toNegativeValue_isError(int value) {
+    Product product = ProductFixture.상품_생성();
+
+    ThrowableAssert.ThrowingCallable callable = () -> product.updatePrice(BigDecimal.valueOf(value));
+
+    Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(callable)
+        .withMessageMatching("상품 가격이 잘못됐어요!");
   }
 
-  @Test
-  void setPrice_nonNegativePrice_isTrue() {
+  @DisplayName("가격은 0원 이상이어야한다 설정할 수 없다.")
+  @ValueSource(ints = {0, 1, 2, 3, 10000})
+  @ParameterizedTest
+  void setPrice_nonNegativePrice_isTrue(int value) {
     Product product = new Product();
-    assertDoesNotThrow(() -> product.setPrice(BigDecimal.valueOf(10)));
+
+    ThrowableAssert.ThrowingCallable callable = () -> product.updatePrice(BigDecimal.valueOf(value));
+
+    Assertions.assertThatNoException().isThrownBy(callable);
   }
 }
