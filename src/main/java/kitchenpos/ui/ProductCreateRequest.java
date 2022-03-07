@@ -12,7 +12,7 @@ public class ProductCreateRequest {
 
 
   public Product toEntity() {
-    return new Product(UUID.randomUUID(), name, price);
+    return new Product(name, price);
   }
 
 }

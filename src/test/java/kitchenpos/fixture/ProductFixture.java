@@ -1,7 +1,6 @@
 package kitchenpos.fixture;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import kitchenpos.domain.Product;
 
 public class ProductFixture {
@@ -11,7 +10,7 @@ public class ProductFixture {
 
 
   public static Product 상품_생성(String name, BigDecimal price) {
-    return new Product(UUID.randomUUID(), name, price);
+    return new Product(name, price);
   }
 
   public static Product 상품_생성(BigDecimal price) {

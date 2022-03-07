@@ -17,10 +17,8 @@ public class MenuGroup {
     @Column(name = "name", nullable = false)
     private String name;
 
-    public MenuGroup() {
-    }
+    public MenuGroup() {}
 
-    // id를 여기서 생성하는 것과 DTO에서 toEntity할 때 생성하는 것 차이 확인?
     public MenuGroup(String name) {
         verify(name);
         this.id = UUID.randomUUID();
