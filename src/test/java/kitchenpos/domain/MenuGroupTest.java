@@ -1,32 +1,24 @@
 package kitchenpos.domain;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import kitchenpos.fixture.MenuGroupFixture;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
-@MockitoSettings(strictness = Strictness.LENIENT)
-@TestInstance(Lifecycle.PER_CLASS)
-@ExtendWith(MockitoExtension.class)
 public class MenuGroupTest {
 
-  @Test
   @DisplayName("메뉴 그룹의 이름은 null 이거나 빈 값이 아니어야 한다.")
-  void setName_nullName_isError() {
-    MenuGroup menuGroup = new MenuGroup();
-    assertThrows(IllegalArgumentException.class, () -> menuGroup.setName(null));
-  }
+  @ParameterizedTest
+  @NullAndEmptySource
+  void updateName_nullAndEmpty_isFalse(String name) {
+    MenuGroup menuGroup = MenuGroupFixture.메뉴그룹_생성();
 
-  @Test
-  @DisplayName("메뉴 그룹의 이름은 null 이거나 빈 값이 아니어야 한다.")
-  void setName_emptyName_isError() {
-    MenuGroup menuGroup = new MenuGroup();
-    assertThrows(IllegalArgumentException.class, () -> menuGroup.setName(""));
+    ThrowableAssert.ThrowingCallable callable = () -> menuGroup.updateName(name);
+
+    Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(callable)
+        .withMessageMatching("메뉴 그룹 이름이 잘못됐어요");
   }
 }

@@ -20,22 +20,29 @@ public class MenuGroup {
     public MenuGroup() {
     }
 
-    public UUID getId() {
-        return id;
+    // id를 여기서 생성하는 것과 DTO에서 toEntity할 때 생성하는 것 차이 확인?
+    public MenuGroup(String name) {
+        verify(name);
+        this.id = UUID.randomUUID();
+        this.name = name;
     }
 
-    public void setId(final UUID id) {
-        this.id = id;
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(final String name) {
+    private void verify(String name) {
         if (Objects.isNull(name) || name.isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("메뉴 그룹 이름이 잘못됐어요");
         }
+    }
+
+    public void updateName(String name) {
+        verify(name);
         this.name = name;
     }
 }
