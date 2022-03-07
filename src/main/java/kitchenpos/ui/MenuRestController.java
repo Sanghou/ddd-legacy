@@ -1,7 +1,10 @@
 package kitchenpos.ui;
 
+import java.util.NoSuchElementException;
+import kitchenpos.application.MenuGroupService;
 import kitchenpos.application.MenuService;
 import kitchenpos.domain.Menu;
+import kitchenpos.domain.MenuGroup;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,21 +16,25 @@ import java.util.UUID;
 @RestController
 public class MenuRestController {
     private final MenuService menuService;
+    private final MenuGroupService menuGroupService;
 
-    public MenuRestController(final MenuService menuService) {
+    public MenuRestController(final MenuService menuService, final MenuGroupService menuGroupService) {
         this.menuService = menuService;
+        this.menuGroupService = menuGroupService;
     }
 
     @PostMapping
-    public ResponseEntity<Menu> create(@RequestBody final Menu request) {
-        final Menu response = menuService.create(request);
+    public ResponseEntity<Menu> create(@RequestBody final MenuCreateRequest request) {
+        final MenuGroup menuGroup = menuGroupService.findById(request.getMenuGroupId());
+        final Menu response = menuService.create(request.toEntity(menuGroup));
+
         return ResponseEntity.created(URI.create("/api/menus/" + response.getId()))
             .body(response);
     }
 
     @PutMapping("/{menuId}/price")
     public ResponseEntity<Menu> changePrice(@PathVariable final UUID menuId, @RequestBody final Menu request) {
-        return ResponseEntity.ok(menuService.changePrice(menuId, request));
+        return ResponseEntity.ok(menuService.changePrice(menuId, request.getPrice()));
     }
 
     @PutMapping("/{menuId}/display")

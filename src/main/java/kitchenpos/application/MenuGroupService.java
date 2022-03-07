@@ -1,5 +1,7 @@
 package kitchenpos.application;
 
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import kitchenpos.domain.MenuGroup;
 import kitchenpos.domain.MenuGroupRepository;
 import org.springframework.stereotype.Service;
@@ -23,5 +25,10 @@ public class MenuGroupService {
     @Transactional(readOnly = true)
     public List<MenuGroup> findAll() {
         return menuGroupRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public MenuGroup findById(UUID id) {
+        return menuGroupRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 }

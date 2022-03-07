@@ -13,7 +13,7 @@ public class MenuGroupTest {
   @ParameterizedTest
   @NullAndEmptySource
   void updateName_nullAndEmpty_isFalse(String name) {
-    MenuGroup menuGroup = MenuGroupFixture.메뉴그룹_생성();
+    MenuGroup menuGroup = MenuGroupFixture.메뉴_그룹_생성();
 
     ThrowableAssert.ThrowingCallable callable = () -> menuGroup.updateName(name);
 

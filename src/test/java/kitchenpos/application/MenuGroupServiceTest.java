@@ -27,7 +27,7 @@ public class MenuGroupServiceTest {
 
   @Test
   void create_validString_isTrue() {
-    MenuGroup menuGroup = MenuGroupFixture.메뉴그룹_생성();
+    MenuGroup menuGroup = MenuGroupFixture.메뉴_그룹_생성();
 
     menuGroup.updateName("비싼 음식 그룹");
 

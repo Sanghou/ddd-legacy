@@ -50,4 +50,8 @@ public class ProductService {
     public List<Product> findAll() {
         return productRepository.findAll();
     }
+
+    public boolean isAllRegistered(List<UUID> ids) {
+        return productRepository.countAllByIds(ids) == ids.size();
+    }
 }

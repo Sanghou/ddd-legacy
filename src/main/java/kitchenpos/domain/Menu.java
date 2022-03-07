@@ -1,5 +1,8 @@
 package kitchenpos.domain;
 
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.validation.constraints.Min;
 import kitchenpos.infra.PurgomalumClient;
 import javax.persistence.*;
@@ -10,112 +13,172 @@ import java.util.UUID;
 @Table(name = "menu")
 @Entity
 public class Menu {
-    @Column(name = "id", columnDefinition = "varbinary(16)")
-    @Id
-    private UUID id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+  @Column(name = "id", columnDefinition = "varbinary(16)")
+  @Id
+  private UUID id;
 
-    @Min(0)
-    @Column(name = "price", nullable = false)
-    private BigDecimal price;
+  @Column(name = "name", nullable = false)
+  private String name;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(
-        name = "menu_group_id",
-        columnDefinition = "varbinary(16)",
-        foreignKey = @ForeignKey(name = "fk_menu_to_menu_group")
-    )
-    private MenuGroup menuGroup;
+  @Min(0)
+  @Column(name = "price", nullable = false)
+  private BigDecimal price;
 
-    @Column(name = "displayed", nullable = false)
-    private boolean displayed;
+  @ManyToOne(optional = false)
+  @JoinColumn(
+      name = "menu_group_id",
+      columnDefinition = "varbinary(16)",
+      foreignKey = @ForeignKey(name = "fk_menu_to_menu_group")
+  )
+  private MenuGroup menuGroup;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(
-        name = "menu_id",
-        nullable = false,
-        columnDefinition = "varbinary(16)",
-        foreignKey = @ForeignKey(name = "fk_menu_product_to_menu")
-    )
-    private List<MenuProduct> menuProducts;
+  @Column(name = "displayed", nullable = false)
+  private boolean displayed;
 
-    @Transient
-    private UUID menuGroupId;
+  @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinColumn(
+      name = "menu_id",
+      nullable = false,
+      columnDefinition = "varbinary(16)",
+      foreignKey = @ForeignKey(name = "fk_menu_product_to_menu")
+  )
+  private List<MenuProduct> menuProducts;
 
-    public Menu() {
+  @Transient
+  private UUID menuGroupId;
+
+  public Menu() {
+  }
+
+  public Menu(String name, BigDecimal price) {
+    this(name, price, null, false, new ArrayList<>());
+  }
+
+  public Menu(String name, BigDecimal price, MenuGroup menuGroup, boolean displayed,
+      List<MenuProduct> menuProducts) {
+    verify(name, price, menuProducts);
+    this.id = UUID.randomUUID();
+    this.name = name;
+    this.price = price;
+    this.menuGroup = menuGroup;
+    this.menuProducts = menuProducts;
+  }
+
+  private void verify(String name, BigDecimal price, List<MenuProduct> menuProducts) {
+    verifyName(name);
+    verifyPrice(price, menuProducts);
+    verifyMenuProducts(menuProducts);
+  }
+
+  private void verifyName(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("이름이 잘못됐어요!");
+    }
+  }
+
+  private void verifyPrice(BigDecimal price, List<MenuProduct> menuProducts) {
+    if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+      throw new IllegalArgumentException("음식 가격이 잘못됐어요!");
     }
 
-    public UUID getId() {
-        return id;
+    if (price.compareTo(calculateMenuProductSum(menuProducts)) > 0) {
+      throw new IllegalArgumentException();
     }
+  }
 
-    public void setId(final UUID id) {
-        this.id = id;
+  private void verifyMenuProducts(List<MenuProduct> menuProducts) {
+    if (Objects.isNull(menuProducts) || menuProducts.isEmpty()) {
+      throw new IllegalArgumentException();
     }
+  }
 
-    public String getName() {
-        return name;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    public void setPrice(final BigDecimal price) {
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("음식 가격이 잘못됐어요!");
-        }
-        this.price = price;
-    }
+  public BigDecimal getPrice() {
+    return price;
+  }
 
-    public MenuGroup getMenuGroup() {
-        return menuGroup;
-    }
+  // price <= menuProducts.sum()
+  public void updatePrice(BigDecimal price) {
+    verifyPrice(price, menuProducts);
+    this.price = price;
+  }
 
-    public void setMenuGroup(final MenuGroup menuGroup) {
-        this.menuGroup = menuGroup;
-    }
+  public MenuGroup getMenuGroup() {
+    return menuGroup;
+  }
 
-    public boolean isDisplayed() {
-        return displayed;
-    }
+  public void setMenuGroup(final MenuGroup menuGroup) {
+    this.menuGroup = menuGroup;
+  }
 
-    public void setDisplayed(final boolean displayed) {
-        this.displayed = displayed;
-    }
+  public boolean isDisplayed() {
+    return displayed;
+  }
 
-    public List<MenuProduct> getMenuProducts() {
-        return menuProducts;
-    }
+  public void makeVisible() {
+    verifyPrice(price, menuProducts);
+    this.displayed = true;
+  }
+  
+  public void makeInvisible() {
+    this.displayed = false;
+  }
 
-    public void setMenuProducts(final List<MenuProduct> menuProducts) {
-        this.menuProducts = menuProducts;
-    }
+  public List<MenuProduct> getMenuProducts() {
+    return menuProducts;
+  }
 
-    public UUID getMenuGroupId() {
-        return menuGroupId;
-    }
+  public void setMenuProducts(final List<MenuProduct> menuProducts) {
+    this.menuProducts = menuProducts;
+  }
 
-    public void setMenuGroupId(final UUID menuGroupId) {
-        this.menuGroupId = menuGroupId;
-    }
+  public UUID getMenuGroupId() {
+    return menuGroupId;
+  }
 
-    private BigDecimal calculatePrice() {
-        return menuProducts
-            .stream()
-            .map(MenuProduct::price)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
+  public void setMenuGroupId(final UUID menuGroupId) {
+    this.menuGroupId = menuGroupId;
+  }
 
-    public void updateDisplay() {
-        if (price.compareTo(calculatePrice()) > 0) {
-            this.displayed = false;
-        }
+  private BigDecimal calculatePrice() {
+    return menuProducts
+        .stream()
+        .map(MenuProduct::price)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  public void updateDisplay() {
+    if (price.compareTo(calculatePrice()) > 0) {
+      this.displayed = false;
     }
+  }
+
+  public List<UUID> getProductIds() {
+    return menuProducts.stream()
+        .map(MenuProduct::getProductId)
+        .collect(Collectors.toList());
+  }
+
+  /*
+  일급 컬렉션으로 List를 분리해서 처리하는게 이론적으로 맞는 것 같음.
+  너무 오버엔지니어링 같아서 분리하지 않고 여기서 사용함.
+   */
+
+  private BigDecimal calculateMenuProductSum(List<MenuProduct> menuProducts) {
+    return menuProducts.stream()
+        .map(MenuProduct::price)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
 }

@@ -29,6 +29,19 @@ public class MenuProduct {
     public MenuProduct() {
     }
 
+    public MenuProduct(Product product, long quantity) {
+        verify(quantity);
+        this.product = product;
+        this.productId = product.getId();
+        this.quantity = quantity;
+    }
+
+    private void verify(final long quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("메뉴 프로덕트 갯수가 이상해요");
+        }
+    }
+
     public Long getSeq() {
         return seq;
     }
@@ -50,9 +63,6 @@ public class MenuProduct {
     }
 
     public void setQuantity(final long quantity) {
-        if (quantity < 0) {
-            throw new IllegalArgumentException("메뉴 프로덕트 갯수가 이상해요");
-        }
         this.quantity = quantity;
     }
 

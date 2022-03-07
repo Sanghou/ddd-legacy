@@ -13,20 +13,20 @@ import org.springframework.lang.Nullable;
 public class MenuMocker extends Menu {
   public static Menu createMenu(BigDecimal value, List<MenuProduct> menuProducts, @Nullable MenuGroup menuGroup) {
     Menu menu = new Menu();
-    UUID menuId = UUID.randomUUID();
-    menu.setId(menuId);
-    menu.setPrice(value);
-    menu.setMenuProducts(menuProducts);
-    menu.setMenuGroup(menuGroup);
+//    UUID menuId = UUID.randomUUID();
+//    menu.setId(menuId);
+//    menu.setPrice(value);
+//    menu.setMenuProducts(menuProducts);
+//    menu.setMenuGroup(menuGroup);
     return menu;
   }
 
   public static Menu of(Menu oldbie) {
     UUID menuId = UUID.randomUUID();
     Menu menu = new Menu();
-    menu.setId(menuId);
-    menu.setPrice(oldbie.getPrice());
-    menu.setMenuProducts(oldbie.getMenuProducts());
+//    menu.setId(menuId);
+//    menu.setPrice(oldbie.getPrice());
+//    menu.setMenuProducts(oldbie.getMenuProducts());
     return menu;
   }
 

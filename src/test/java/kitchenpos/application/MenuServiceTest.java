@@ -21,7 +21,10 @@ import kitchenpos.domain.MenuProduct;
 import kitchenpos.domain.MenuRepository;
 import kitchenpos.domain.Product;
 import kitchenpos.domain.ProductRepository;
+import kitchenpos.fixture.MenuFixture;
 import kitchenpos.infra.PurgomalumClient;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.graalvm.compiler.nodes.calc.IntegerDivRemNode.Op;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -44,6 +48,9 @@ class MenuServiceTest {
 
   @InjectMocks
   private MenuService menuService;
+
+  @Mock
+  private ProductService productService;
 
   @Mock
   private MenuRepository menuRepository;
@@ -56,43 +63,35 @@ class MenuServiceTest {
 
   @BeforeEach
   void setUp() {
-    menuService = new MenuService(menuRepository, menuGroupRepository, productRepository, purgomalumClient);
+    menuService = new MenuService(menuRepository, menuGroupRepository, productRepository, productService, purgomalumClient);
   }
 
   @Test
-  @DisplayName("메뉴 상품은 모두 상품에 등록되어있어야 한다.")
+  @DisplayName("상품에 등록되지 않은 메뉴 상품이 존재하면 예외를 발생시킨다.")
   void createMenu_notEnrollProduct_isFalse() {
-    Product product = ProductMocker.createProduct(BigDecimal.valueOf(10));
-    MenuProduct menuProduct = MenuProductMocker.createMenu(product, 10);
+    BigDecimal price = BigDecimal.valueOf(20_000_000);
+    Product product = new Product("상품", BigDecimal.valueOf(2_000_000));
     List<MenuProduct> menuProducts = new ArrayList<>();
-    menuProducts.add(menuProduct);
-    MenuGroup menuGroup = MenuGroupMocker.createMenuGroup();
-    Menu menu = MenuMocker.createMenu(BigDecimal.valueOf(100), menuProducts, menuGroup);
-    given(productRepository.findById(product.getId())).willReturn(Optional.empty());
+    menuProducts.add(new MenuProduct(product, 10));
+    Menu menu = new Menu("메뉴", price, new MenuGroup("그룹"), true, menuProducts);
 
-    assertThrows(NoSuchElementException.class, () -> menuService.create(menu));
-  }
+    given(productService.isAllRegistered(anyList())).willReturn(false);
 
-  @Test
-  @DisplayName("메뉴 이름은 null이 아니고 비속어가 아니어야 한다.")
-  void createMenu_menuNameIsNotNull() {
-    Menu menu = MenuMocker.createMenuWithDefault();
-    menu.setName(null);
-    given(menuGroupRepository.findById(menu.getMenuGroupId())).willReturn(Optional.of(menu.getMenuGroup()));
+    ThrowableAssert.ThrowingCallable callable = () -> menuService.create(menu);
 
-    assertThrows(IllegalArgumentException.class, () -> menuService.create(menu));
+    Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(callable);
   }
 
   @Test
   @DisplayName("메뉴 이름은 null이 아니고 비속어가 아니어야 한다.")
   void createMenu_menuNameIsNotPurgomalum() {
-    Menu menu = MenuMocker.createMenuWithDefault();
-    menu.setName("나쁜말");
-    given(menuGroupRepository.findById(menu.getMenuGroupId())).willReturn(Optional.of(menu.getMenuGroup()));
-
-    given(purgomalumClient.containsProfanity("나쁜말")).willReturn(true);
-
-    assertThrows(IllegalArgumentException.class, () -> menuService.create(menu));
+//    Menu menu = MenuFixture.메뉴_생성("나쁜말");
+//    given(menuGroupRepository.findById(menu.getMenuGroupId())).willReturn(Optional.of(menu.getMenuGroup()));
+//
+//    given(purgomalumClient.containsProfanity("나쁜말")).willReturn(true);
+//
+//    assertThrows(IllegalArgumentException.class, () -> menuService.create(menu));
   }
 
   @Test
@@ -100,17 +99,17 @@ class MenuServiceTest {
   void changePrice_nonNegativePrice_isTrue() {
     Menu menu = MenuMocker.createMenuWithDefault();
     Menu changedMenu = MenuMocker.of(menu);
-    changedMenu.setPrice(BigDecimal.valueOf(10));
+    changedMenu.updatePrice(BigDecimal.valueOf(10));
     given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
 
-    assertDoesNotThrow(() -> menuService.changePrice(menu.getId(), changedMenu));
+    assertDoesNotThrow(() -> menuService.changePrice(menu.getId(), changedMenu.getPrice()));
   }
 
   @Test
   @DisplayName("등록된 메뉴만 보이게 설정할 수 있다.")
   void showMenu_inexpensivePrice_isTalse() {
     Menu menu = MenuMocker.createMenuWithDefault();
-    menu.setPrice(BigDecimal.valueOf(100));
+    menu.updatePrice(BigDecimal.valueOf(100));
     given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
 
     assertDoesNotThrow(() -> menuService.display(menu.getId()));
@@ -121,7 +120,7 @@ class MenuServiceTest {
   @DisplayName("메뉴의 가격이 메뉴 상품의 가격 총합보다 큰 경우 메뉴를 보이게할 수 없다.")
   void showMenu_expensivePrice_isFalse() {
     Menu menu = MenuMocker.createMenuWithDefault();
-    menu.setPrice(BigDecimal.valueOf(10000));
+    menu.updatePrice(BigDecimal.valueOf(10000));
     given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
 
     assertThrows(IllegalStateException.class, () -> menuService.display(menu.getId()));
