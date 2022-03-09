@@ -1,7 +1,11 @@
 package kitchenpos.ui;
 
+import kitchenpos.application.MenuService;
 import kitchenpos.application.OrderService;
+import kitchenpos.application.OrderTableService;
+import kitchenpos.domain.Menu;
 import kitchenpos.domain.Order;
+import kitchenpos.domain.OrderTable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,14 +17,18 @@ import java.util.UUID;
 @RestController
 public class OrderRestController {
     private final OrderService orderService;
+    private final MenuService menuService;
+    private final OrderTableService orderTableService;
 
-    public OrderRestController(final OrderService orderService) {
+    public OrderRestController(OrderService orderService, MenuService menuService, OrderTableService orderTableService) {
         this.orderService = orderService;
+        this.menuService = menuService;
+        this.orderTableService = orderTableService;
     }
 
     @PostMapping
-    public ResponseEntity<Order> create(@RequestBody final Order request) {
-        final Order response = orderService.create(request);
+    public ResponseEntity<Order> create(@RequestBody final OrderCreateRequest request) {
+        final Order response = orderService.create(request.toEntity(orderTable));
         return ResponseEntity.created(URI.create("/api/orders/" + response.getId()))
             .build();
     }

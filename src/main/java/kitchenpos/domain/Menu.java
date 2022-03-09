@@ -1,14 +1,13 @@
 package kitchenpos.domain;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.validation.constraints.Min;
-import kitchenpos.infra.PurgomalumClient;
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Table(name = "menu")
 @Entity
@@ -82,6 +81,7 @@ public class Menu {
       throw new IllegalArgumentException("음식 가격이 잘못됐어요!");
     }
 
+    System.out.println(calculateMenuProductSum(menuProducts));
     if (price.compareTo(calculateMenuProductSum(menuProducts)) > 0) {
       throw new IllegalArgumentException();
     }
@@ -128,7 +128,7 @@ public class Menu {
   }
 
   public void makeVisible() {
-    verifyPrice(price, menuProducts);
+//    verifyPrice(price, menuProducts); -> 이미 생성시점에 검증되고 값을 업데이트할 때도 검증되기 때문에 이런 케이스는 존재하지 않음
     this.displayed = true;
   }
   

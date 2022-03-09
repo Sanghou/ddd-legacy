@@ -73,4 +73,22 @@ public class MenuService {
     public List<Menu> findAll() {
         return menuRepository.findAll();
     }
+
+    @Transactional(readOnly = true)
+    public boolean isAllAvailable(List<UUID> ids) {
+        long available = menuRepository.findAllByIds(ids)
+                .stream()
+                .filter(Menu::isDisplayed)
+                .count();
+        return available == ids.size();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Menu> findAllByIds(List<UUID> ids) {
+        List<Menu> menus = menuRepository.findAllByIds(ids);
+        if (menus.size() != ids.size()) {
+            throw new IllegalArgumentException("");
+        }
+        return menus;
+    }
 }

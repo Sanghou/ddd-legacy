@@ -1,17 +1,17 @@
 package kitchenpos.Mocker;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import kitchenpos.domain.Menu;
 import kitchenpos.domain.MenuGroup;
 import kitchenpos.domain.MenuProduct;
 import kitchenpos.domain.Product;
 import org.springframework.lang.Nullable;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MenuMocker extends Menu {
-  public static Menu createMenu(BigDecimal value, List<MenuProduct> menuProducts, @Nullable MenuGroup menuGroup) {
+  public static Menu createMenu(BigDecimal price, List<MenuProduct> menuProducts, @Nullable MenuGroup menuGroup) {
     Menu menu = new Menu();
 //    UUID menuId = UUID.randomUUID();
 //    menu.setId(menuId);
@@ -22,12 +22,7 @@ public class MenuMocker extends Menu {
   }
 
   public static Menu of(Menu oldbie) {
-    UUID menuId = UUID.randomUUID();
-    Menu menu = new Menu();
-//    menu.setId(menuId);
-//    menu.setPrice(oldbie.getPrice());
-//    menu.setMenuProducts(oldbie.getMenuProducts());
-    return menu;
+    return new Menu(oldbie.getName(), oldbie.getPrice(), oldbie.getMenuGroup(), oldbie.isDisplayed(), oldbie.getMenuProducts());
   }
 
   public static Menu createMenuWithDefault() {

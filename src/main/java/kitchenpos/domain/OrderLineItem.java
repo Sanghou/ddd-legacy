@@ -32,6 +32,15 @@ public class OrderLineItem {
     public OrderLineItem() {
     }
 
+    public OrderLineItem(Long seq, Menu menu, long quantity, UUID menuId, BigDecimal price) {
+        verify(menu, price);
+        this.seq = seq;
+        this.menu = menu;
+        this.quantity = quantity;
+        this.menuId = menuId;
+        this.price = price;
+    }
+
     public Long getSeq() {
         return seq;
     }
@@ -44,24 +53,12 @@ public class OrderLineItem {
         return menu;
     }
 
-    public void setMenu(final Menu menu) {
-        this.menu = menu;
-    }
-
     public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(final long quantity) {
-        this.quantity = quantity;
-    }
-
     public UUID getMenuId() {
         return menuId;
-    }
-
-    public void setMenuId(final UUID menuId) {
-        this.menuId = menuId;
     }
 
     public BigDecimal getPrice() {
@@ -71,4 +68,15 @@ public class OrderLineItem {
     public void setPrice(final BigDecimal price) {
         this.price = price;
     }
+
+    private void verify(Menu menu, BigDecimal price) {
+        verifyPrice(menu, price);
+    }
+
+    private void verifyPrice(Menu menu, BigDecimal price) {
+        if (menu.getPrice().compareTo(price) != 0) {
+            throw new IllegalArgumentException();
+        }
+    }
+
 }

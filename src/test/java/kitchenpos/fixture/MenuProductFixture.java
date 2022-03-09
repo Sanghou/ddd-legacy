@@ -1,6 +1,5 @@
 package kitchenpos.fixture;
 
-import com.sun.tools.javac.util.List;
 import kitchenpos.domain.MenuProduct;
 import kitchenpos.domain.Product;
 

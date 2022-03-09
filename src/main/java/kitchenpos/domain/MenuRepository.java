@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MenuRepository extends JpaRepository<Menu, UUID> {
-    @Query("select m from Menu m, MenuProduct mp where mp.product.id = :productId")
+    @Query("SELECT m FROM Menu m, MenuProduct mp WHERE mp.product.id = :productId")
     List<Menu> findAllByProductId(@Param("productId") UUID productId);
+
+    @Query("SELECT m FROM Menu m WHERE m.id IN :ids")
+    List<Menu> findAllByIds(List<UUID> ids);
 }
