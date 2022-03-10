@@ -32,9 +32,8 @@ public class OrderLineItem {
     public OrderLineItem() {
     }
 
-    public OrderLineItem(Long seq, Menu menu, long quantity, UUID menuId, BigDecimal price) {
+    public OrderLineItem(Menu menu, long quantity, UUID menuId, BigDecimal price) {
         verify(menu, price);
-        this.seq = seq;
         this.menu = menu;
         this.quantity = quantity;
         this.menuId = menuId;
@@ -79,4 +78,7 @@ public class OrderLineItem {
         }
     }
 
+    public BigDecimal calculatePrice() {
+        return menu.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
 }

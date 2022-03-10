@@ -3,6 +3,12 @@ package kitchenpos.domain;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import kitchenpos.fixture.MenuProductFixture;
+import kitchenpos.fixture.ProductFixture;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowableAssert;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.hibernate.proxy.map.MapProxyFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -18,8 +24,12 @@ public class MenuProductTest {
 
   @Test
   void menuProduct_NegativeSize_isFalse() {
-    MenuProduct menuGroup = new MenuProduct();
-    assertThrows(IllegalArgumentException.class, () -> menuGroup.setQuantity(-1));
+    Product product = ProductFixture.상품_생성();
+
+    ThrowableAssert.ThrowingCallable callable = () -> MenuProductFixture.메뉴_상품_생성(product, -1);
+
+    Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(callable);
   }
 
 

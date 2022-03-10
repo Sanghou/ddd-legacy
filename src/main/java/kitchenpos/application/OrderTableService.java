@@ -68,11 +68,10 @@ public class OrderTableService {
 
     @Transactional(readOnly = true)
     public OrderTable findValidOrderTable(final UUID orderTableId) {
-        // OrderTable자체를 조회해오는걸 -> OrderController
-        // Delivery -> OrderTableId = null;
-//        if (orderTableId == null) {
-//            return null;
-//        }
+        // TODO: 이 부분은 DELIVERY일 때, 우회하기 위한 용도로 개선 필요함
+        if (orderTableId == null) {
+            return null;
+        }
         return orderTableRepository.findById(orderTableId)
                 .orElseThrow(NoSuchElementException::new);
     }

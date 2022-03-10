@@ -14,23 +14,23 @@ import java.util.UUID;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final MenuService menuService;
-    private final MenuRepository menuRepository;
-    private final OrderTableRepository orderTableRepository;
+//    private final MenuRepository menuRepository;
+//    private final OrderTableRepository orderTableRepository;
     private final OrderTableService orderTableService;
     private final KitchenridersClient kitchenridersClient;
 
     public OrderService(
             OrderRepository orderRepository,
             MenuService menuService,
-            MenuRepository menuRepository,
-            OrderTableRepository orderTableRepository,
+//            MenuRepository menuRepository,
+//            OrderTableRepository orderTableRepository,
             OrderTableService orderTableService,
             KitchenridersClient kitchenridersClient
     ) {
         this.orderRepository = orderRepository;
         this.menuService = menuService;
-        this.menuRepository = menuRepository;
-        this.orderTableRepository = orderTableRepository;
+//        this.menuRepository = menuRepository;
+//        this.orderTableRepository = orderTableRepository;
         this.orderTableService = orderTableService;
         this.kitchenridersClient = kitchenridersClient;
     }
@@ -170,21 +170,14 @@ public class OrderService {
     public Order accept(final UUID orderId) {
         final Order order = orderRepository.findById(orderId)
                 .orElseThrow(NoSuchElementException::new);
-        if (order.getStatus() != OrderStatus.WAITING) {
+        if (!order.canAccept()) {
             throw new IllegalStateException();
         }
-        // 오더 서비스의ㄴ임인가? 오더 도메인에서 검증이 필요한가?
-        validateOrderStatus(order, OrderStatus.WAITING);
+
         if (order.getType() == OrderType.DELIVERY) {
-            BigDecimal sum = BigDecimal.ZERO;
-            for (final OrderLineItem orderLineItem : order.getOrderLineItems()) {
-                sum = orderLineItem.getMenu()
-                        .getPrice()
-                        .multiply(BigDecimal.valueOf(orderLineItem.getQuantity()));
-            }
-            kitchenridersClient.requestDelivery(orderId, sum, order.getDeliveryAddress());
+            kitchenridersClient.requestDelivery(orderId, order.totalPrice(), order.getDeliveryAddress());
         }
-        order.setStatus(OrderStatus.ACCEPTED);
+        order.accept();
         return order;
     }
 
@@ -192,10 +185,10 @@ public class OrderService {
     public Order serve(final UUID orderId) {
         final Order order = orderRepository.findById(orderId)
                 .orElseThrow(NoSuchElementException::new);
-        if (order.getStatus() != OrderStatus.ACCEPTED) {
+        if (!order.canServe()) {
             throw new IllegalStateException();
         }
-        order.setStatus(OrderStatus.SERVED);
+        order.served();
         return order;
     }
 
@@ -276,17 +269,5 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<Order> findAll() {
         return orderRepository.findAll();
-    }
-
-    private void validateOrderType(Order order, OrderType type) {
-        if (order.getType() != type) {
-            throw new IllegalStateException();
-        }
-    }
-
-    private void validateOrderStatus(Order order, OrderStatus status) {
-        if (order.getStatus() != status) {
-            throw new IllegalStateException();
-        }
     }
 }

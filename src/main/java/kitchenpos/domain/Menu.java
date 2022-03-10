@@ -81,7 +81,7 @@ public class Menu {
       throw new IllegalArgumentException("음식 가격이 잘못됐어요!");
     }
 
-    System.out.println(calculateMenuProductSum(menuProducts));
+//    System.out.println(calculateMenuProductSum(menuProducts));
     if (price.compareTo(calculateMenuProductSum(menuProducts)) > 0) {
       throw new IllegalArgumentException();
     }

@@ -28,6 +28,7 @@ public class OrderRestController {
 
     @PostMapping
     public ResponseEntity<Order> create(@RequestBody final OrderCreateRequest request) {
+        final OrderTable orderTable = orderTableService.findValidOrderTable(request.getOrderTableId());
         final Order response = orderService.create(request.toEntity(orderTable));
         return ResponseEntity.created(URI.create("/api/orders/" + response.getId()))
             .build();
